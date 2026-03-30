@@ -1,0 +1,57 @@
+# Node
+node_modules/
+
+# Build outputs
+build/
+dist/
+.cache/
+coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Environment files
+.env
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# IDE/editor folders
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Editor swap/temp files
+*~
+*.swp
+*.swo
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Parcel / Next / other caches
+.cache/
+.next/
+.parcel-cache/
+
+# Test outputs
+coverage/
+jest/
+
+# Misc
+*.tgz
+
+# Ignore local build artifact from OneDrive (if any)
+*.local
+
+# Keep lockfiles (do not ignore package-lock.json or yarn.lock unless intentional)
+
