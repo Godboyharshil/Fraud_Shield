@@ -162,7 +162,7 @@ export default function App() {
             </div>
             <div>
               <span className="logo-name">FraudShield</span>
-              <span className="logo-sub">by Fin-O-Hack × Paytm</span>
+              <span className="logo-sub">For Fin-O-Hack × Paytm</span>
             </div>
           </div>
           <div className="header-badge">
@@ -385,7 +385,7 @@ export default function App() {
           <div className="how-steps">
             {[
               { n: '01', t: 'Upload Evidence', d: 'Drop a screenshot or paste the raw JSON transaction payload' },
-              { n: '02', t: 'AI Forensics',    d: 'Claude Vision inspects pixels, metadata, font rendering & field checksums' },
+              { n: '02', t: 'AI Forensics',    d: 'Gemini Vision inspects pixels, metadata, font rendering & field checksums' },
               { n: '03', t: 'Verdict',         d: 'Get a confidence score, risk rating, and a detailed list of anomalies' },
             ].map((s, i) => (
               <div key={i} className="how-step">
