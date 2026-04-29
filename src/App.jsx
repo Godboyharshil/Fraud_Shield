@@ -36,7 +36,7 @@ async function analyzeWithAI(imageFile) {
   const formData = new FormData();
   formData.append('file', imageFile);
 
-  const res = await fetch(`${backendUrl}/analyze`, {
+  const res = await fetch(`${backendUrl}/analyse`, {
     method: 'POST',
     body: formData
   });
