@@ -29,33 +29,23 @@ const SAMPLE_JSON = {
   app_version: "10.5.2"
 };
 
+const backendUrl = "https://fraudshield-backend-mxg9.onrender.com"
+
 // ─── Fake response simulator (replace with real API call) ────────────────────
-async function analyzeWithAI(payload) {
-  // TODO: Replace this with your actual backend call:
-  // const res = await fetch('http://localhost:5000/analyze', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(payload)
-  // });
-  // return await res.json();
+async function analyzeWithAI(imageFile) {
+  const formData = new FormData();
+  formData.append('file', imageFile);
 
-  await new Promise(r => setTimeout(r, 2800)); // simulate network delay
+  const res = await fetch(`${backendUrl}/analyze`, {
+    method: 'POST',
+    body: formData
+  });
 
-  // Simulated AI response structure
-  return {
-    verdict: Math.random() > 0.4 ? 'FAKE' : 'AUTHENTIC',
-    confidence: Math.floor(70 + Math.random() * 29),
-    risk_score: Math.floor(40 + Math.random() * 59),
-    flags: [
-      { severity: 'HIGH',   label: 'Inconsistent font rendering around amount field', found: true },
-      { severity: 'HIGH',   label: 'UTR number fails Luhn-style checksum validation', found: Math.random() > 0.5 },
-      { severity: 'MEDIUM', label: 'Timestamp timezone offset anomaly detected',     found: Math.random() > 0.4 },
-      { severity: 'MEDIUM', label: 'Logo pixel density mismatch (possible crop/paste)', found: Math.random() > 0.5 },
-      { severity: 'LOW',    label: 'Status badge color outside official Paytm palette', found: Math.random() > 0.3 },
-      { severity: 'LOW',    label: 'Shadow/layer artifacts near transaction ID area', found: Math.random() > 0.6 },
-    ].filter(f => f.found),
-    summary: "The submitted payment evidence shows multiple indicators of digital manipulation. The amount field exhibits compression artifacts inconsistent with native app rendering, and the UTR number does not conform to NPCI formatting standards."
-  };
+  if (!res.ok){
+    const error = await res.json();
+    throw new Error(error.message || 'Analysis failed');
+  }
+  return await res.json();
 }
 
 // ─── Severity badge ───────────────────────────────────────────────────────────
@@ -124,20 +114,25 @@ export default function App() {
   const analyze = async () => {
     setStatus('analyzing'); setResult(null);
     try {
-      let payload = { mode: tab };
       if (tab === 'screenshot') {
         if (!image) { setStatus('idle'); return; }
-        payload.image_name = image.file.name;
-        payload.image_size = image.file.size;
-        // In production: convert to base64 and send
+        const res = await analyzeWithAI(image.file);
+        setResult(res);
       } else {
-        payload.transaction = JSON.parse(jsonText);
+        await new Promise(r => setTimeout(r,2800));
+        setResult({
+          verdict: "Suspicious",
+          confidence: 78,
+          risk_score: 65,
+          flags: [
+          ],
+          summary:"JSON analysis coming soon."
+        });
       }
-      const res = await analyzeWithAI(payload);
-      setResult(res);
       setStatus('done');
     } catch (e) {
       setStatus('error');
+      console.error(e);
     }
   };
 
@@ -311,7 +306,7 @@ export default function App() {
         )}
 
         {status === 'done' && result && (
-          <div className={`card result-card ${result.verdict === 'FAKE' ? 'verdict-fake' : 'verdict-real'}`}>
+          <div className={`card result-card ${result.verdict === 'FAKE' ? 'verdict-fake' : result.verdict ==='SUSPICIOUS' ? 'verdict-fake' : 'verdict-real'}`}>
             {/* Verdict banner */}
             <div className="verdict-banner">
               <div className="verdict-icon-wrap">
@@ -320,7 +315,7 @@ export default function App() {
               <div className="verdict-text">
                 <span className="verdict-label"
                   style={{ color: result.verdict === 'FAKE' ? 'var(--danger)' : 'var(--success)' }}>
-                  {result.verdict === 'FAKE' ? '⚠ FRAUDULENT' : '✓ AUTHENTIC'}
+                  {result.verdict === 'FAKE' ? '⚠ FRAUDULENT' : result.verdict === 'SUSPICIOUS' ? '⚠ SUSPICIOUS' : '✓ AUTHENTIC'}
                 </span>
                 <p className="verdict-summary">{result.summary}</p>
               </div>
@@ -341,11 +336,11 @@ export default function App() {
             </div>
 
             {/* Flags */}
-            {result.flags.length > 0 && (
+            {result.flags.filter(f => f.found).length > 0 && (
               <div className="flags-section">
                 <p className="flags-title">Detected Anomalies</p>
                 <div className="flags-list">
-                  {result.flags.map((flag, i) => (
+                  {result.flags.filter(f => f.found).map((flag, i) => (
                     <div key={i} className="flag-item" style={{ animationDelay: `${i * 0.07}s` }}>
                       <SeverityBadge level={flag.severity} />
                       <span className="flag-label">{flag.label}</span>
