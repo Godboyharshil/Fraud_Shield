@@ -329,7 +329,7 @@ export default function App() {
                 label="Risk Score" />
               <div className="score-ring-wrap text-stat">
                 <span className="stat-num" style={{ color: result.verdict === 'FAKE' ? 'var(--danger)' : 'var(--success)' }}>
-                  {result.flags.length}
+                  {result.flags.filter(f => f.found).length}
                 </span>
                 <span className="stat-label">Flags raised</span>
               </div>
